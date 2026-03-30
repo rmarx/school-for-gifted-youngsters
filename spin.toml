@@ -1,0 +1,33 @@
+spin_manifest_version = 2
+
+[application]
+authors = ["Robin Marx <marx.robin@gmail.com>"]
+description = "X-men demo for Akamai Functions"
+name = "school-for-gifted-youngsters"
+version = "0.1.0"
+
+[[trigger.http]]
+route = "/..."
+component = "school-for-gifted-youngsters"
+
+[component.school-for-gifted-youngsters]
+source = "dist/school-for-gifted-youngsters.wasm"
+exclude_files = ["**/node_modules"]
+allowed_outbound_hosts = [
+    # "tcp://127.0.0.1:*", # Uncomment this line to while using the StarlingMonkey Debugger
+]
+[component.school-for-gifted-youngsters.build]
+command = ["npm install", "npm run build"]
+watch = ["src/**/*.ts"]
+
+[[trigger.http]]
+route = "/ascii"
+component = "image-processor"
+
+[component.image-processor]
+source = "image-processor/target/wasm32-wasip1/release/image_processor.wasm"
+allowed_outbound_hosts = ["https://*:*", "http://*:*"]
+[component.image-processor.build]
+command = "cargo build --target wasm32-wasip1 --release"
+workdir = "image-processor"
+watch = ["src/**/*.rs", "Cargo.toml"]

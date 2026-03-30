@@ -1,0 +1,21 @@
+[package]
+name = "image-processor"
+authors = ["Robin Marx <marx.robin@gmail.com>"]
+description = "Rust component for processing images"
+version = "0.1.0"
+rust-version = "1.78"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+anyhow = "1"
+spin-sdk = "5.2.0"
+url = "2"
+artem = { version = "3", default-features = false }
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "gif", "webp"] }
+font8x8 = "0.3"
+rasciify = "0.2.2"
+
+[workspace]
