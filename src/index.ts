@@ -8,9 +8,11 @@ const studentImages: Record<string, string> = {
   "wolverine": "https://static.wikia.nocookie.net/marvelcinematicuniverse/images/7/7c/Wolverine_Infobox.png/revision/latest?cb=20240522015042",
   "storm": "https://static.wikia.nocookie.net/moviemorgue/images/9/93/Xmen_storm.png/revision/latest?cb=20161108202445",
   "xavier": "https://static.wikia.nocookie.net/spiderman-animated/images/a/a6/780897890.PNG/revision/latest?cb=20160123032045",
-  "cyclops": "https://media.gq.com/photos/66049ca2d6bafed5ec9b791f/1:1/w_1748,h_1748,c_limit/AAM0370_comp_Tk2_v001_r709.117420_C.jpg",
+  "cyclops": "https://static0.srcdn.com/wordpress/wp-content/uploads/2025/08/x-men-s-cyclops-art.jpg?w=1200&h=675&fit=crop",
   "magneto": "https://www.writeups.org/wp-content/uploads/Magneto-Marvel-Comics-X-Men-Eisenhardt-Lehnsherr-Magnus-d.jpg",
-  
+  "rogue": "https://i.redd.it/fwvfuzeqdvva1.jpg",
+  "gambit": "https://www.diamondartclub.com/cdn/shop/files/gambit-diamond-art-painting-45576248393921.jpg?v=1762461190&width=900"
+
 };
 
 let router = AutoRouter();
@@ -19,8 +21,44 @@ let router = AutoRouter();
 // Any route that does not return will be treated as a middleware
 // Any unmatched route will return a 404
 router
-  .get('/', () => new Response('Hello, Spin!'))
-  .get('/hello/:name', ({ name }) => `Hello, ${name}!`)
+  .get('/', () => {
+    const students = Object.keys(studentImages);
+    const tableRows = students.map(name => `<tr><td><a href="/student/${encodeURIComponent(name)}" target="_blank">${name}</a></td><td><img src="${studentImages[name]}" width="100" alt="${name} preview"></td></tr>`).join('');
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>School for Gifted Youngsters</title>
+  <style>
+    body { text-align: center; font-family: Arial, sans-serif; background-color: #f0f0f0; }
+    h1 { color: #333; margin-top: 50px; }
+    p { color: #666; }
+    table { margin: 20px auto; border-collapse: collapse; background-color: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    th, td { padding: 15px; border: 1px solid #ccc; text-align: center; }
+    th { background-color: #f8f8f8; }
+    a { text-decoration: none; color: #007bff; font-size: 18px; }
+    a:hover { text-decoration: underline; }
+    img { border-radius: 5px; }
+    footer { margin-top: 50px; color: #666; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <h1>Welcome to the School for Gifted Youngsters's Facebook!</h1>
+  <p>Click on a student to see their ASCII art:</p>
+  <table>
+    <thead>
+      <tr><th>Student</th><th>Preview</th></tr>
+    </thead>
+    <tbody>
+      ${tableRows}
+    </tbody>
+  </table>
+  <footer>Powered by Spin and Akamai Functions</footer>
+</body>
+</html>
+    `;
+    return new Response(html, { headers: { 'content-type': 'text/html' } });
+  })
   .get('/student/:name', async (req) => {
     const { name } = req.params as { name: string };
     const url = new URL(req.url);
