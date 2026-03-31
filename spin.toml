@@ -14,6 +14,8 @@ component = "school-for-gifted-youngsters"
 source = "dist/school-for-gifted-youngsters.wasm"
 exclude_files = ["**/node_modules"]
 allowed_outbound_hosts = [
+    "http://image-processor.spin.internal",
+    "https://*:*", "http://*:*",
     # "tcp://127.0.0.1:*", # Uncomment this line to while using the StarlingMonkey Debugger
 ]
 [component.school-for-gifted-youngsters.build]
@@ -21,7 +23,7 @@ command = ["npm install", "npm run build"]
 watch = ["src/**/*.ts"]
 
 [[trigger.http]]
-route = "/ascii"
+route = { private = true }
 component = "image-processor"
 
 [component.image-processor]
