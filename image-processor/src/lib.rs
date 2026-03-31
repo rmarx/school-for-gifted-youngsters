@@ -150,6 +150,33 @@ async fn handle_image_processor(req: Request) -> anyhow::Result<impl IntoRespons
         .map(|(_, value)| value != "false" && value != "0")
         .unwrap_or(true);
 
+    // Extract `resize` query parameter (default: true)
+    // When true, resize the image to a max of 500px on either dimension before processing
+    let do_resize = parsed
+        .query_pairs()
+        .find(|(key, _)| key == "resize")
+        .map(|(_, value)| value != "false" && value != "0")
+        .unwrap_or(true);
+
+    let img = if do_resize {
+        let max_dim: u32 = 500;
+        if orig_width > max_dim || orig_height > max_dim {
+            let scale = (max_dim as f64 / orig_width as f64).min(max_dim as f64 / orig_height as f64);
+            let new_w = (orig_width as f64 * scale).round() as u32;
+            let new_h = (orig_height as f64 * scale).round() as u32;
+            println!("Resizing from {}x{} to {}x{}", orig_width, orig_height, new_w, new_h);
+            img.resize_exact(new_w, new_h, image::imageops::FilterType::Lanczos3)
+        } else {
+            img
+        }
+    } else {
+        img
+    };
+
+    // Update dimensions after potential resize
+    let proc_width = img.width();
+    let proc_height = img.height();
+
     let png_bytes = match model.as_str() {
         "rasciify" => {
             println!("Using rasciify with charset={}, color={}", charset, use_color);
@@ -164,7 +191,7 @@ async fn handle_image_processor(req: Request) -> anyhow::Result<impl IntoRespons
             };
 
             // Compute number of columns — aim for a reasonable width
-            let num_cols = (orig_width / 4).max(80).min(300);
+            let num_cols = (proc_width / 4).max(80).min(300);
 
             let output_img = if use_color {
                 let buf = rgb_to_rgb_ascii_img(
